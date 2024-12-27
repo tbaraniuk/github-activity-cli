@@ -17,7 +17,7 @@ namespace github_activity.src
 
     public class Api
     {
-        public static async Task<string> GetUserActivity(string username, string? repo)
+        public static async Task<string> GetUserActivity(string username, string? repo, string? activityType)
         {
             try
             {
@@ -41,6 +41,11 @@ namespace github_activity.src
                 }
 
                 var formattedList = new List<UserActivityApiResponse>();
+
+                if(activityType is not null)
+                {
+                    userActivityApiResponse = userActivityApiResponse.Where(item => item.type.ToLower().Contains(activityType.ToLower())).ToArray();
+                }
 
                 for(var i = 0; i < userActivityApiResponse.Length; i++)
                 {
@@ -78,6 +83,15 @@ namespace github_activity.src
             foreach(UserActivityApiResponse item in list) {
                 switch(item.type)
                 {
+                    case "CreateEvent":
+                        result += $"- Created {item.count} branch{(item.count == 1 ? "" : "es")} or tag{(item.count == 1 ? "" : "s")} to {item.repo.name}\n";
+                        break;
+                    case "DeleteEvent":
+                        result += $"- Deleted {item.count} branch{(item.count == 1 ? "" : "es")} or tag{(item.count == 1 ? "" : "s")} to {item.repo.name}\n";
+                        break;
+                    case "ForkEvent":
+                        result += $"- Forked a repository {item.repo.name}\n";
+                        break;
                     case "PushEvent":
                         result += $"- Pushed {item.count} commit{(item.count == 1 ? "" : "s")} to {item.repo.name}\n";
                         break;
@@ -89,9 +103,6 @@ namespace github_activity.src
                         break;
                     case "PullRequestEvent":
                         result += $"- Created {item.count} pull request{(item.count == 1 ? "" : "s")} to {item.repo.name}\n";
-                        break;
-                    case "CreateEvent":
-                        result += $"- Created {item.count} event{(item.count == 1 ? "" : "s")} to {item.repo.name}\n";
                         break;
                     case "WatchEvent":
                         result += $"- Starred {item.repo.name}\n";
