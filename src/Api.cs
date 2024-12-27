@@ -1,7 +1,5 @@
 using System;
 using System.Text.Json;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace github_activity.src
 {
@@ -19,7 +17,7 @@ namespace github_activity.src
 
     public class Api
     {
-        public static async Task<string> GetUserActivity(string username)
+        public static async Task<string> GetUserActivity(string username, string? repo)
         {
             try
             {
@@ -27,7 +25,10 @@ namespace github_activity.src
 
                 client.DefaultRequestHeaders.Add("User-Agent", "C# App");
 
-                var response = await client.GetAsync($"https://api.github.com/users/{username}/events");
+                string originalUri = "https://api.github.com";
+                string requestUri = repo?.Length > 0 ? $"/repos/{username}/{repo}/events" : $"/users/{username}/events";
+
+                var response = await client.GetAsync($"{originalUri}{requestUri}");
 
                 response.EnsureSuccessStatusCode();
 

@@ -8,16 +8,19 @@ namespace GithubActivity
     {
         static async Task<int> Main(string[] args)
         {
-            var githubActivityOption = new Option<string>("--github-activity", "A github-activity for a user");
+            var usernameArgument = new Argument<string>(name:"username", description:"A username for a user of GitHub profile");
+            var repoOption = new Option<string>(name:"--repo", description: "A repo name");
 
             var rootCommand = new RootCommand("CLI app for getting user github activity info");
-            rootCommand.AddOption(githubActivityOption);
 
-            rootCommand.SetHandler(async (argument) => {
-                var result = await Api.GetUserActivity(argument);
+            rootCommand.AddArgument(usernameArgument);
+            rootCommand.AddOption(repoOption);
+
+            rootCommand.SetHandler(async (username, repo) => {
+                var result = await Api.GetUserActivity(username, repo);
 
                 Console.WriteLine(result);
-            }, githubActivityOption);
+            }, usernameArgument, repoOption);
 
             return await rootCommand.InvokeAsync(args);
         }
